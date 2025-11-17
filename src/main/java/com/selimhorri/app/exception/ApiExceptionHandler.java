@@ -23,9 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 
 	
-			ExceptionHandler(value = {
+				ExceptionHandler(value = {
 				MethodArgumentNotValidException.class,
-			HttpMessageNotReadableException.class,
+		HttpMessageNotReadableException.class,
 	})
 
 		
@@ -33,17 +33,17 @@ import lombok.extern.slf4j.Slf4j;
 
 		
 		return new ResponseEntit
-						xceptionMsg.builder()
+							xceptionMsg.builder()
 							.msg("*" + e.getBindin
 							.httpStatus(badRequest)
-								timestamp(ZonedDateTime
+									imestamp(ZonedDateTime
 									.now(Z
-				neId.systemDefault()))
+				
 		
 
-	}
+	
 			
-			ExceptionHandler(value = {
+				ExceptionHandler(value = {
 			FavouriteNotFoundException.class,
 	})
 
@@ -61,21 +61,10 @@ import lombok.extern.slf4j.Slf4j;
 		
 
 	
-				errorMessage.contains("PRIMARY KEY") ||
-				errorMessage.contains("unique constraint"))) {
-			errorMessage = "Favourite already exists with the same userId, productId, and likeDate";
-		} else {
-			errorMessage = "Data integrity violation: " + (errorMessage != null ? errorMessage : "Unknown error");
-		}
-
-		return new ResponseEntity<>(
-				ExceptionMsg.builder()
-						.msg("#### " + errorMessage + "! ####")
-						.httpStatus(conflict)
-						.timestamp(ZonedDateTime
-								.now(ZoneId.systemDefault()))
-						.build(),
-				conflict);
+							.now(ZoneId.systemDefault()))
+					.build(), conflict);
 	}
-
+	
+	
+	
 }
