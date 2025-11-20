@@ -1,11 +1,16 @@
 package com.selimhorri.app.resource;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,9 +50,16 @@ public class FavouriteResource {
 			@PathVariable("productId") final String productId, 
 			@PathVariable("likeDate") final String likeDate) {
 		log.info("*** FavouriteDto, resource; fetch favourite by id *");
-		return ResponseEntity.ok(this.favouriteService.findById(
-				new FavouriteId(Integer.parseInt(userId), Integer.parseInt(productId), 
-						LocalDateTime.parse(likeDate, DateTimeFormatter.ofPattern(AppConstant.LOCAL_DATE_TIME_FORMAT)))));
+		try {
+			// Decodificar la fecha si viene codificada en la URL
+			String decodedLikeDate = URLDecoder.decode(likeDate, StandardCharsets.UTF_8.name());
+			LocalDateTime parsedDate = LocalDateTime.parse(decodedLikeDate, DateTimeFormatter.ofPattern(AppConstant.LOCAL_DATE_TIME_FORMAT));
+			return ResponseEntity.ok(this.favouriteService.findById(
+					new FavouriteId(Integer.parseInt(userId), Integer.parseInt(productId), parsedDate)));
+		} catch (DateTimeParseException | IllegalArgumentException | UnsupportedEncodingException e) {
+			log.error("Error parsing likeDate: {}", likeDate, e);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		}
 	}
 	
 	@GetMapping("/find")
@@ -83,9 +95,16 @@ public class FavouriteResource {
 			@PathVariable("productId") final String productId, 
 			@PathVariable("likeDate") final String likeDate) {
 		log.info("*** Boolean, resource; delete favourite by id *");
-		this.favouriteService.deleteById(new FavouriteId(Integer.parseInt(userId), Integer.parseInt(productId), 
-						LocalDateTime.parse(likeDate, DateTimeFormatter.ofPattern(AppConstant.LOCAL_DATE_TIME_FORMAT))));
-		return ResponseEntity.ok(true);
+		try {
+			// Decodificar la fecha si viene codificada en la URL
+			String decodedLikeDate = URLDecoder.decode(likeDate, StandardCharsets.UTF_8.name());
+			LocalDateTime parsedDate = LocalDateTime.parse(decodedLikeDate, DateTimeFormatter.ofPattern(AppConstant.LOCAL_DATE_TIME_FORMAT));
+			this.favouriteService.deleteById(new FavouriteId(Integer.parseInt(userId), Integer.parseInt(productId), parsedDate));
+			return ResponseEntity.ok(true);
+		} catch (DateTimeParseException | IllegalArgumentException | UnsupportedEncodingException e) {
+			log.error("Error parsing likeDate for delete: {}", likeDate, e);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+		}
 	}
 	
 	@DeleteMapping("/delete")
