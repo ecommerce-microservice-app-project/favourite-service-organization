@@ -1,1 +1,1 @@
-# favourite-service-organization.
+# favourite-service-organization
